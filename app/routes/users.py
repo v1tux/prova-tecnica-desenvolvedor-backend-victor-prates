@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User
 from app.schemas import UserCreate, UserResponse, UserUpdate
-from app.security import get_password_hash
+from app.security import get_current_user, get_password_hash
 
 router = APIRouter(
     prefix="/users",
@@ -45,7 +45,10 @@ def create_user(
 
 
 @router.get("/", response_model=list[UserResponse])
-def list_users(db: Session = Depends(get_db)):
+def list_users(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """
     Lista todos os usuários cadastrados.
     """
@@ -56,6 +59,7 @@ def list_users(db: Session = Depends(get_db)):
 def get_user(
     user_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Busca um usuário específico pelo ID.
@@ -76,6 +80,7 @@ def update_user(
     user_id: int,
     user_data: UserUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Atualiza os dados de um usuário.
@@ -105,6 +110,7 @@ def update_user(
 def delete_user(
     user_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Desativa um usuário em vez de removê-lo fisicamente do banco.

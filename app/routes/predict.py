@@ -1,6 +1,8 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from app.models import User
 from app.schemas import PredictionRequest, PredictionResponse
+from app.security import get_current_user
 from app.services.prediction_service import prediction_service
 
 router = APIRouter(
@@ -10,7 +12,10 @@ router = APIRouter(
 
 
 @router.post("/", response_model=PredictionResponse)
-def predict(data: PredictionRequest):
+def predict(
+    data: PredictionRequest,
+    current_user: User = Depends(get_current_user),
+):
     """
     Realiza uma predição com base em três características numéricas.
 

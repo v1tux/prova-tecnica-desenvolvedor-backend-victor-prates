@@ -1,3 +1,10 @@
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.models import User
+
 from datetime import datetime, timedelta, timezone
 
 from jose import JWTError, jwt
@@ -12,7 +19,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # Configura o contexto de criptografia usado para gerar e validar hashes.
 # O bcrypt é uma escolha comum para proteger senhas.
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
@@ -71,3 +78,45 @@ def decode_access_token(token: str) -> dict | None:
         return payload
     except JWTError:
         return None
+    
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db),
+) -> User:
+    """
+    Valida o token JWT enviado na requisição e retorna o usuário autenticado.
+
+    O token deve ser enviado no cabeçalho Authorization no formato:
+    Bearer <token>
+
+    Caso o token esteja inválido, expirado ou o usuário não exista,
+    a API retorna erro 401 Unauthorized.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Não foi possível validar as credenciais.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    payload = decode_access_token(token)
+
+    if payload is None:
+        raise credentials_exception
+
+    email = payload.get("sub")
+
+    if email is None:
+        raise credentials_exception
+
+    user = db.query(User).filter(User.email == email).first()
+
+    if user is None:
+        raise credentials_exception
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuário inativo.",
+        )
+
+    return user
