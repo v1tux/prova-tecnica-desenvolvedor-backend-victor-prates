@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from app.routes import auth, predict, users
 
 from app.database import Base, engine
 from app.routes import auth, users
@@ -20,7 +21,7 @@ app = FastAPI(
 # Registro das rotas da aplicação.
 app.include_router(auth.router)
 app.include_router(users.router)
-
+app.include_router(predict.router)
 
 @app.get("/")
 def read_root():

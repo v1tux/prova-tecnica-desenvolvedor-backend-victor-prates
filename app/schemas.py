@@ -68,3 +68,22 @@ class TokenData(BaseModel):
     """
 
     email: str | None = None
+
+class PredictionRequest(BaseModel):
+    """
+    Schema usado para receber os dados de entrada da predição.
+
+    O modelo treinado espera três características numéricas.
+    """
+
+    feature_1: float = Field(..., description="Primeira característica numérica")
+    feature_2: float = Field(..., description="Segunda característica numérica")
+    feature_3: float = Field(..., description="Terceira característica numérica")
+
+
+class PredictionResponse(BaseModel):
+    """
+    Schema usado para retornar o resultado da predição.
+    """
+
+    prediction: float
