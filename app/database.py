@@ -1,9 +1,11 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 # URL de conexão com o banco SQLite.
 # O arquivo do banco será criado na raiz do projeto com o nome app.db.
-DATABASE_URL = "sqlite:///./app.db"
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
 
 # O parâmetro connect_args é necessário para o SQLite funcionar corretamente
 # com aplicações web, permitindo o uso da conexão em diferentes threads.

@@ -1,0 +1,13 @@
+services:
+  api:
+    build: .
+    container_name: prova_tecnica_backend_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - sqlite_data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./data/app.db
+
+volumes:
+  sqlite_data:
