@@ -1,8 +1,7 @@
 from fastapi import FastAPI
-from app.routes import auth, predict, users
 
 from app.database import Base, engine
-from app.routes import auth, users
+from app.routes import auth, predict, users
 
 # Cria as tabelas no banco de dados caso ainda não existam.
 # Para esta prova técnica, isso simplifica a execução do projeto.
